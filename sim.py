@@ -74,6 +74,41 @@ def three_dof_body_axes(
     return theta, q, dqdt, pos, velocity, acceleration
 
 
+def step_function(time, step_time=1.0, initial_value=0.0, final_value=1.0, sample_time=0.1, delay=0.0):
+    """
+    Generates a step signal
+
+    Input parameters:
+    - time: The current time (s)
+    - step_time: The time at which the step occurs (s)
+    - initial_value: The value of the output before the step time (float)
+    - final_value: The value of the output after the step time (float)
+    - sample_time: The time interval between samples (s)
+    - delay: The delay before the step occurs (s)
+
+    Output return values:
+    - The value of the step signal at the given time (float)
+    """
+    effective_step_time = step_time + delay
+    if time < effective_step_time:
+        return initial_value
+    else:
+        return final_value
+
+
+time_values = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0] # time points
+step_time = 0.0
+initial_value = 0.0
+final_value = 15.0 # 15N of thrust
+sample_time = 0.1
+delay = 2.0
+
+# generate step signal for each time point
+step_signal = [step_function(t, step_time, initial_value, final_value, sample_time, delay) for t in time_values]
+print(step_signal)
+
+
+
 result = three_dof_body_axes(Fx=100, Fz=50, My=10)
 print(result)
 

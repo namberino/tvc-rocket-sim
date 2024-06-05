@@ -121,7 +121,7 @@ velocity_list = []
 acceleration_list = []
 
 start_time = 0.0
-end_time = 5.0
+end_time = 4.0
 time_step = 0.1
 times = np.arange(start_time, end_time + time_step, time_step)
 
@@ -161,7 +161,7 @@ for t in times:
     velocity_list.append(velocity)
     acceleration_list.append(acceleration)
 
-plt.figure(figsize=(12, 8))
+plt.figure(num='Rocket Simulation', figsize=(11, 8))
 
 plt.subplot(3, 1, 1)
 plt.plot(times, [pos[0] for pos in pos_list], label='x position')
@@ -170,6 +170,7 @@ plt.xlabel('Time (s)')
 plt.ylabel('Position (m)')
 plt.legend()
 plt.grid()
+plt.title('Position Data')
 
 plt.subplot(3, 1, 2)
 plt.plot(times, [velocity[0] for velocity in velocity_list], label='u velocity (x-direction)')
@@ -178,6 +179,7 @@ plt.xlabel('Time (s)')
 plt.ylabel('Velocity (m/s)')
 plt.legend()
 plt.grid()
+plt.title('Velocity Data')
 
 plt.subplot(3, 1, 3)
 plt.plot(times, theta_list, label='Pitch Angle (radians)')
@@ -185,6 +187,7 @@ plt.xlabel('Time (s)')
 plt.ylabel('Pitch Angle (radians)')
 plt.legend()
 plt.grid()
+plt.title('Pitch Angle Data')
 
 plt.tight_layout()
 plt.show()

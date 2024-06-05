@@ -7,7 +7,7 @@ def three_dof_body_axes(
     g=9.81, include_inertial_acceleration=False
 ):
     """
-    Simulates the 3DoF (Body Axes) dynamics of a rigid body.
+    Simulates the 3DoF (Body Axes) dynamics of a rigid body
     
     Input parameters:
     - Fx: Force in the body x-direction (N)
@@ -73,7 +73,7 @@ def three_dof_body_axes(
     
     return theta, q, dqdt, pos, velocity, acceleration
 
-# Example of usage
+
 result = three_dof_body_axes(Fx=100, Fz=50, My=10)
 print(result)
 

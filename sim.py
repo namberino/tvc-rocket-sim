@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 def three_dof_body_axes(
     Fx, Fz, My, 
@@ -74,7 +75,7 @@ def three_dof_body_axes(
     return theta, q, dqdt, pos, velocity, acceleration
 
 
-def step_function(time, step_time=1.0, initial_value=0.0, final_value=1.0, sample_time=0.1, delay=0.0):
+def step_function(time, step_time=0.0, initial_value=0.0, final_value=15.0, sample_time=0.1, delay=2.0):
     """
     Generates a step signal
 
@@ -96,19 +97,94 @@ def step_function(time, step_time=1.0, initial_value=0.0, final_value=1.0, sampl
         return final_value
 
 
-time_values = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0] # time points
-step_time = 0.0
-initial_value = 0.0
+time_values = [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] # time points
 final_value = 15.0 # 15N of thrust
-sample_time = 0.1
-delay = 2.0
 
 # generate step signal for each time point
-step_signal = [step_function(t, step_time, initial_value, final_value, sample_time, delay) for t in time_values]
+step_signal = [step_function(t, final_value=final_value) for t in time_values]
 print(step_signal)
 
+theta, q, dqdt, pos, velocity, acceleration = three_dof_body_axes(Fx=0, Fz=50, My=0)
+
+Xe, Ze = pos
+Ze_inv = -1.0 * Ze
+print(Xe, Ze_inv)
 
 
-result = three_dof_body_axes(Fx=100, Fz=50, My=10)
-print(result)
+# Simulating a rocket
+# lists for results
+theta_list = []
+q_list = []
+dqdt_list = []
+pos_list = []
+velocity_list = []
+acceleration_list = []
 
+start_time = 0.0
+end_time = 5.0
+time_step = 0.1
+times = np.arange(start_time, end_time + time_step, time_step)
+
+# initial conditions
+Fx = 0 # assuming no force in x-direction
+My = 0 # assuming no moment about the y-axis
+u0 = 0.0
+w0 = 0.0
+theta0 = 0.0
+q0 = 0.0
+alpha0 = 0.0
+pos0 = (0.0, 0.0)
+mass = 0.543
+mass_e = 0.432
+mass_f = 0.543
+Iyy_e = 0.028
+Iyy_f = 0.048
+g = 9.81
+include_inertial_acceleration = False
+
+for t in times:
+    Fz = step_function(t, final_value=final_value)
+    theta, q, dqdt, pos, velocity, acceleration = three_dof_body_axes(
+        Fx, Fz, My,
+        u0, w0, theta0, q0, alpha0, pos0,
+        mass, mass_e, mass_f, Iyy_e, Iyy_f, g, include_inertial_acceleration
+    )
+
+    u0, w0 = velocity
+    theta0, q0 = theta, q
+    pos0 = pos
+
+    theta_list.append(theta)
+    q_list.append(q)
+    dqdt_list.append(dqdt)
+    pos_list.append(pos)
+    velocity_list.append(velocity)
+    acceleration_list.append(acceleration)
+
+plt.figure(figsize=(12, 8))
+
+plt.subplot(3, 1, 1)
+plt.plot(times, [pos[0] for pos in pos_list], label='x position')
+plt.plot(times, [pos[1] for pos in pos_list], label='z position')
+plt.xlabel('Time (s)')
+plt.ylabel('Position (m)')
+plt.legend()
+plt.grid()
+
+plt.subplot(3, 1, 2)
+plt.plot(times, [velocity[0] for velocity in velocity_list], label='u velocity (x-direction)')
+plt.plot(times, [velocity[1] for velocity in velocity_list], label='w velocity (z-direction)')
+plt.xlabel('Time (s)')
+plt.ylabel('Velocity (m/s)')
+plt.legend()
+plt.grid()
+
+plt.subplot(3, 1, 3)
+plt.plot(times, theta_list, label='Pitch Angle (radians)')
+plt.xlabel('Time (s)')
+plt.ylabel('Pitch Angle (radians)')
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()

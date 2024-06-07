@@ -105,7 +105,7 @@ pos0 = [0.0, 0.0] # initial position [x, z]
 
 # generate thrust profile
 # thrust_profile = generate_thrust_profile(simulation_duration, thrust_duration, peak_thrust, dt)
-with open('f15_thrust_extended.npy', 'rb') as f:
+with open('profiles/f15_thrust_extended.npy', 'rb') as f:
     thrust_profile = np.load(f)
 print(max(thrust_profile))
 

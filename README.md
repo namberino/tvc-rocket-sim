@@ -6,7 +6,7 @@ This is a simulation for a simple TVC model rocket with 3 degrees of freedom and
 
 ![z data plot](img/z-data.png)
 
-![trajectory plot](img/trajectory.png)
+![f15 thrust profile](img/f15-profile.png)
 
 # Reference
 - [Modeling a Thrust Vectored Rocket In Simulink](https://www.youtube.com/watch?v=nwgd1CV__rs&t)

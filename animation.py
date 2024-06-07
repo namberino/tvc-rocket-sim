@@ -130,29 +130,47 @@ acceleration = results['acceleration']
 
 print(acceleration[:, 1])
 
-fig, ax = plt.subplots(figsize=(10, 6)) # figure and axis
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(10, 12)) # two subplots
 
-line, = ax.plot([], [], 'b-', label='Rocket Trajectory')
-launch_point, = ax.plot([], [], 'go', label='Launch Point')
-impact_point, = ax.plot([], [], 'ro', label='Impact Point')
-ground_line = ax.axhline(0, color='black', linestyle='--', label='Ground')
+# Trajectory plot
+line, = ax1.plot([], [], 'b-', label='Rocket Trajectory')
+launch_point, = ax1.plot([], [], 'go', label='Launch Point')
+impact_point, = ax1.plot([], [], 'ro', label='Impact Point')
+ground_line = ax1.axhline(0, color='black', linestyle='--', label='Ground')
 
 # labels
-ax.set_xlabel('X Position (m)')
-ax.set_ylabel('Z Position (m)')
-ax.set_title('Rocket Trajectory Animation')
-ax.legend()
+ax1.set_xlabel('X Position (m)')
+ax1.set_ylabel('Z Position (m)')
+ax1.set_title('Rocket Trajectory Animation')
+ax1.legend()
 
 # axis limits
-ax.set_xlim(np.min(pos[:, 0]) - 1, np.max(pos[:, 0]) + 1)
-ax.set_ylim(0, np.max(pos[:, 1]) + 1)
+ax1.set_xlim(np.min(pos[:, 0]) - 1, np.max(pos[:, 0]) + 1)
+ax1.set_ylim(0, np.max(pos[:, 1]) + 1)
 
-# text elements
-theta_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
-q_text = ax.text(0.02, 0.90, '', transform=ax.transAxes)
-pos_text = ax.text(0.02, 0.85, '', transform=ax.transAxes)
-vel_text = ax.text(0.02, 0.80, '', transform=ax.transAxes)
-acc_text = ax.text(0.02, 0.75, '', transform=ax.transAxes)
+# text elements for trajectory
+theta_text = ax1.text(0.02, 0.95, '', transform=ax1.transAxes)
+q_text = ax1.text(0.02, 0.90, '', transform=ax1.transAxes)
+pos_text = ax1.text(0.02, 0.85, '', transform=ax1.transAxes)
+vel_text = ax1.text(0.02, 0.80, '', transform=ax1.transAxes)
+acc_text = ax1.text(0.02, 0.75, '', transform=ax1.transAxes)
+
+# Thrust profile plot
+thrust_line, = ax2.plot([], [], 'r-', label='Thrust Profile')
+current_thrust, = ax2.plot([], [], 'ro', label='Current Thrust')
+
+# labels
+ax2.set_xlabel('Time (s)')
+ax2.set_ylabel('Thrust (N)')
+ax2.set_title('Thrust Profile Animation')
+ax2.legend()
+
+# axis limits
+ax2.set_xlim(0, simulation_duration)
+ax2.set_ylim(0, np.max(thrust_profile) + 1)
+
+# text element for thrust
+thrust_text = ax2.text(0.05, 0.90, '', transform=ax2.transAxes)
 
 # initialize points for the 1st frame
 def init():
@@ -164,7 +182,11 @@ def init():
     pos_text.set_text('')
     vel_text.set_text('')
     acc_text.set_text('')
-    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text
+    
+    thrust_line.set_data([], [])
+    current_thrust.set_data([], [])
+    thrust_text.set_text('')
+    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, thrust_line, current_thrust, thrust_text
 
 # update plot for each frame
 def update(frame):
@@ -178,7 +200,11 @@ def update(frame):
     vel_text.set_text(f'Velocity: [{velocity[frame, 0]:.2f}, {velocity[frame, 1]:.2f}] m/s')
     acc_text.set_text(f'Acceleration: [{acceleration[frame, 0]:.2f}, {acceleration[frame, 1]:.2f}] m/s²')
 
-    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text
+    thrust_line.set_data(time[:frame], thrust_profile[:frame])
+    current_thrust.set_data(time[frame], thrust_profile[frame])
+    thrust_text.set_text(f'Current Thrust: {thrust_profile[frame]:.2f} N')
+
+    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, thrust_line, current_thrust, thrust_text
 
 animation = FuncAnimation(fig, update, frames=len(pos), init_func=init, blit=True, interval=dt)
 plt.show()

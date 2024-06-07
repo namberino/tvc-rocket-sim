@@ -26,7 +26,7 @@ def three_dof_body_axes(Fx, Fz, My, u0=0.0, w0=0.0, theta0=0.0, q0=0.0, pos0=[0.
     acceleration_list = [np.array([ax, az])]
 
     # time integration using Euler's method
-    for t in np.arange(dt, duration + dt, dt):  # start at dt and end at 'duration'
+    for t in np.arange(0, duration + dt, dt):  # start at dt and end at 'duration'
         # calculate accelerations
         ax = Fx[int(t/dt)] / mass
         az = Fz[int(t/dt)] / mass - g
@@ -104,8 +104,10 @@ q0 = 0.0 # initial pitch rate
 pos0 = [0.0, 0.0] # initial position [x, z]
 
 # generate thrust profile
-thrust_profile = generate_thrust_profile(simulation_duration, thrust_duration, peak_thrust, dt)
-print(thrust_profile)
+# thrust_profile = generate_thrust_profile(simulation_duration, thrust_duration, peak_thrust, dt)
+with open('f15_thrust_extended.npy', 'rb') as f:
+    thrust_profile = np.load(f)
+print(max(thrust_profile))
 
 # initialize forces and moments
 Fx = np.sin(gimbal_angle) * thrust_profile # horizontal thrust
@@ -177,7 +179,6 @@ def update(frame):
     acc_text.set_text(f'Acceleration: [{acceleration[frame, 0]:.2f}, {acceleration[frame, 1]:.2f}] m/s²')
 
     return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text
-
 
 animation = FuncAnimation(fig, update, frames=len(pos), init_func=init, blit=True, interval=dt)
 plt.show()

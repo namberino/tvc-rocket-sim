@@ -2,7 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-def three_dof_body_axes(Fx, Fz, My, u0=0.0, w0=0.0, theta0=0.0, q0=0.0, pos0=[0.0, 0.0], mass=0, inertia=0.0, g=9.81, dt=0.01, duration=10):
+def three_dof_body_axes(Fx, Fz, My, 
+                        u0=0.0, w0=0.0, theta0=0.0, q0=0.0, pos0=[0.0, 0.0], 
+                        mass=0, inertia=0.0, 
+                        Cd=0.75, A=0.01, rho=1.225, 
+                        g=9.81, dt=0.01, duration=10):
     # ensure pos0 is a float array
     pos = np.array(pos0, dtype=float)
     
@@ -26,10 +30,18 @@ def three_dof_body_axes(Fx, Fz, My, u0=0.0, w0=0.0, theta0=0.0, q0=0.0, pos0=[0.
     acceleration_list = [np.array([ax, az])]
 
     # time integration using Euler's method
-    for t in np.arange(0, duration + dt, dt):  # start at dt and end at 'duration'
+    for t in np.arange(0, duration + dt, dt):  # start at 0 and end at 'duration'
+        # calculate air drag force
+        v_rocket = np.linalg.norm(vel)
+        Fd = 1/2 * rho * v_rocket**2 * Cd * A
+        Fd_x = Fd * (u / v_rocket) if v_rocket != 0 else 0
+        Fd_z = Fd * (w / v_rocket) if v_rocket != 0 else 0
+
         # calculate accelerations
-        ax = Fx[int(t/dt)] / mass
-        az = Fz[int(t/dt)] / mass - g
+        # ax = Fx[int(t/dt)] / mass
+        # az = Fz[int(t/dt)] / mass - g
+        ax = (Fx[int(t/dt)] - Fd_x) / mass
+        az = (Fz[int(t/dt)] - Fd_z) / mass - g
         
         # calculate angular acceleration
         dqdt = My[int(t/dt)] / inertia
@@ -86,6 +98,9 @@ def generate_thrust_profile(duration, thrust_duration, peak_thrust, dt=0.01):
     return np.array(thrust_profile)
 
 # parameters
+Cd = 0.75 # air drag coefficient
+A = 0.009 # reference area (m^2)
+rho = 1.225 # air density (kg/m^3)
 mass = 0.543 # kg
 inertia = 0.048 # kg*m^2
 g = 9.81 # m/s^2
@@ -94,7 +109,7 @@ thrust_duration = 4 # s
 simulation_duration = 15 # s
 dt = 0.01 # time step
 moment_arm = 0.28 # meters
-gimbal_angle = 0.0001 # radian
+gimbal_angle = 0.05 # radian
 
 # initial conditions
 u0 = 0.0 # initial velocity in x (body axis)
@@ -119,7 +134,11 @@ print(Fz)
 print(My)
 
 # simulation
-results = three_dof_body_axes(Fx, Fz, My, u0, w0, theta0, q0, pos0, mass, inertia, g, dt, simulation_duration)
+results = three_dof_body_axes(Fx, Fz, My, 
+                              u0, w0, theta0, q0, pos0, 
+                              mass, inertia, 
+                              Cd, A, rho, 
+                              g, dt, simulation_duration)
 
 time = np.arange(0, len(results['pos']) * dt, dt)
 theta = results['theta']

@@ -90,7 +90,7 @@ mass = 0.543 # kg
 inertia = 0.048 # kg*m^2
 g = 9.81 # m/s^2
 peak_thrust = 15 # N
-thrust_duration = 6 # s
+thrust_duration = 4 # s
 simulation_duration = 15 # s
 dt = 0.01 # time step
 moment_arm = 0.28 # meters
@@ -105,7 +105,7 @@ pos0 = [0.0, 0.0] # initial position [x, z]
 
 # generate thrust profile
 # thrust_profile = generate_thrust_profile(simulation_duration, thrust_duration, peak_thrust, dt)
-with open('profiles/P_thrust_extended.npy', 'rb') as f:
+with open('profiles/f15_thrust_extended.npy', 'rb') as f:
     thrust_profile = np.load(f)
 print(max(thrust_profile))
 

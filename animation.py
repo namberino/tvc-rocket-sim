@@ -201,6 +201,8 @@ ax2.set_ylim(0, np.max(thrust_profile) + 1)
 
 # text element for thrust
 thrust_text = ax2.text(0.05, 0.90, '', transform=ax2.transAxes)
+max_thrust_value = 0
+max_thrust_text = ax2.text(0.05, 0.85, '', transform=ax2.transAxes)
 
 # initialize points for the 1st frame
 def init():
@@ -217,10 +219,14 @@ def init():
     thrust_line.set_data([], [])
     current_thrust.set_data([], [])
     thrust_text.set_text('')
-    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, density_text, thrust_line, current_thrust, thrust_text
+    max_thrust_text.set_text('')
+    
+    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, density_text, thrust_line, current_thrust, thrust_text, max_thrust_text
 
 # update plot for each frame
 def update(frame):
+    global max_thrust_value
+
     line.set_data(pos[:frame, 0], pos[:frame, 1])
     launch_point.set_data(pos[0, 0], pos[0, 1])
     impact_point.set_data(pos[frame, 0], pos[frame, 1])
@@ -236,7 +242,12 @@ def update(frame):
     current_thrust.set_data(time[frame], thrust_profile[frame])
     thrust_text.set_text(f'Current Thrust: {thrust_profile[frame]:.2f} N')
 
-    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, density_text, thrust_line, current_thrust, thrust_text
+    if thrust_profile[frame] > max_thrust_value:
+        max_thrust_value = thrust_profile[frame]
+
+    max_thrust_text.set_text(f'Max Thrust: {max_thrust_value:.2f} N')
+
+    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, density_text, thrust_line, current_thrust, thrust_text, max_thrust_text
 
 animation = FuncAnimation(fig, update, frames=len(pos), init_func=init, blit=True, interval=dt)
 plt.show()

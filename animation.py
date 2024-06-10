@@ -2,10 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
+def calc_air_density(altitude, rho0=1.225, scale_height=8500):
+    # calculate air density as a function of altitude
+    return rho0 * np.exp(-altitude / scale_height)
+
 def three_dof_body_axes(Fx, Fz, My, 
                         u0=0.0, w0=0.0, theta0=0.0, q0=0.0, pos0=[0.0, 0.0], 
                         mass=0, inertia=0.0, 
-                        Cd=0.75, A=0.01, rho=1.225, 
+                        Cd=0.75, A=0.01, rho0=1.225, scale_height=8500,
                         g=9.81, dt=0.01, duration=10):
     # ensure pos0 is a float array
     pos = np.array(pos0, dtype=float)
@@ -28,12 +32,14 @@ def three_dof_body_axes(Fx, Fz, My,
     pos_list = [pos.copy()]
     velocity_list = [vel.copy()]
     acceleration_list = [np.array([ax, az])]
+    density_list = [calc_air_density(pos[1], rho0, scale_height)]
 
     # time integration using Euler's method
     for t in np.arange(0, duration + dt, dt):  # start at 0 and end at 'duration'
         # calculate air drag force
         v_rocket = np.linalg.norm(vel)
-        Fd = 1/2 * rho * v_rocket**2 * Cd * A
+        current_rho = calc_air_density(pos[1], rho0, scale_height)
+        Fd = 1/2 * current_rho * v_rocket**2 * Cd * A
         Fd_x = Fd * (u / v_rocket) if v_rocket != 0 else 0
         Fd_z = Fd * (w / v_rocket) if v_rocket != 0 else 0
 
@@ -65,6 +71,7 @@ def three_dof_body_axes(Fx, Fz, My,
         pos_list.append(pos.copy())
         velocity_list.append(vel.copy())
         acceleration_list.append(np.array([ax, az]))
+        density_list.append(current_rho)
         
         # stop if the rocket returns to ground level
         if pos[1] <= 0 and t > 2:  # allow some time for launch
@@ -76,7 +83,8 @@ def three_dof_body_axes(Fx, Fz, My,
         'dqdt' : np.array(dqdt_list),
         'pos' : np.array(pos_list),
         'velocity' : np.array(velocity_list),
-        'acceleration' : np.array(acceleration_list)
+        'acceleration' : np.array(acceleration_list),
+        'air_density' : np.array(density_list)
     }
 
 def generate_thrust_profile(duration, thrust_duration, peak_thrust, dt=0.01):
@@ -100,7 +108,8 @@ def generate_thrust_profile(duration, thrust_duration, peak_thrust, dt=0.01):
 # parameters
 Cd = 0.75 # air drag coefficient
 A = 0.009 # reference area (m^2)
-rho = 1.225 # air density (kg/m^3)
+rho0 = 1.225 # air density (kg/m^3)
+scale_height = 8500 # m (altitude where atmospheric pressure decreases by a factor of e)
 mass = 0.543 # kg
 inertia = 0.048 # kg*m^2
 g = 9.81 # m/s^2
@@ -109,7 +118,7 @@ thrust_duration = 4 # s
 simulation_duration = 15 # s
 dt = 0.01 # time step
 moment_arm = 0.28 # meters
-gimbal_angle = 0.05 # radian
+gimbal_angle = 0.001 # radian
 
 # initial conditions
 u0 = 0.0 # initial velocity in x (body axis)
@@ -137,7 +146,7 @@ print(My)
 results = three_dof_body_axes(Fx, Fz, My, 
                               u0, w0, theta0, q0, pos0, 
                               mass, inertia, 
-                              Cd, A, rho, 
+                              Cd, A, rho0, scale_height, 
                               g, dt, simulation_duration)
 
 time = np.arange(0, len(results['pos']) * dt, dt)
@@ -146,6 +155,7 @@ q = results['q']
 pos = results['pos']
 velocity = results['velocity']
 acceleration = results['acceleration']
+air_density = results['air_density']
 
 print(acceleration[:, 1])
 
@@ -173,6 +183,7 @@ q_text = ax1.text(0.02, 0.90, '', transform=ax1.transAxes)
 pos_text = ax1.text(0.02, 0.85, '', transform=ax1.transAxes)
 vel_text = ax1.text(0.02, 0.80, '', transform=ax1.transAxes)
 acc_text = ax1.text(0.02, 0.75, '', transform=ax1.transAxes)
+density_text = ax1.text(0.02, 0.70, '', transform=ax1.transAxes)
 
 # Thrust profile plot
 thrust_line, = ax2.plot([], [], 'r-', label='Thrust Profile')
@@ -201,11 +212,12 @@ def init():
     pos_text.set_text('')
     vel_text.set_text('')
     acc_text.set_text('')
+    density_text.set_text('')
     
     thrust_line.set_data([], [])
     current_thrust.set_data([], [])
     thrust_text.set_text('')
-    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, thrust_line, current_thrust, thrust_text
+    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, density_text, thrust_line, current_thrust, thrust_text
 
 # update plot for each frame
 def update(frame):
@@ -218,12 +230,13 @@ def update(frame):
     pos_text.set_text(f'Position: [{pos[frame, 0]:.2f}, {pos[frame, 1]:.2f}] m')
     vel_text.set_text(f'Velocity: [{velocity[frame, 0]:.2f}, {velocity[frame, 1]:.2f}] m/s')
     acc_text.set_text(f'Acceleration: [{acceleration[frame, 0]:.2f}, {acceleration[frame, 1]:.2f}] m/s²')
+    density_text.set_text(f'Air density: {air_density[frame]:.3f} kg/m³')
 
     thrust_line.set_data(time[:frame], thrust_profile[:frame])
     current_thrust.set_data(time[frame], thrust_profile[frame])
     thrust_text.set_text(f'Current Thrust: {thrust_profile[frame]:.2f} N')
 
-    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, thrust_line, current_thrust, thrust_text
+    return line, launch_point, impact_point, theta_text, q_text, pos_text, vel_text, acc_text, density_text, thrust_line, current_thrust, thrust_text
 
 animation = FuncAnimation(fig, update, frames=len(pos), init_func=init, blit=True, interval=dt)
 plt.show()

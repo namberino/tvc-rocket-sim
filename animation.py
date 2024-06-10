@@ -89,6 +89,7 @@ def three_dof_body_axes(Fx, Fz, My,
 
 def generate_thrust_profile(duration, thrust_duration, peak_thrust, dt=0.01):
     thrust_profile = []
+
     for t in np.arange(0, duration + dt, dt):
         if t < 0.1 * thrust_duration:
             # ignition and rapid rise (modeled as quadratic rise)
@@ -103,13 +104,17 @@ def generate_thrust_profile(duration, thrust_duration, peak_thrust, dt=0.01):
             # burnout
             thrust = 0
         thrust_profile.append(thrust)
+
     return np.array(thrust_profile)
 
-# parameters
+
+# air density and drag constants
 Cd = 0.75 # air drag coefficient
 A = 0.009 # reference area (m^2)
 rho0 = 1.225 # air density (kg/m^3)
 scale_height = 8500 # m (altitude where atmospheric pressure decreases by a factor of e)
+
+# rocket measurements
 mass = 0.543 # kg
 inertia = 0.048 # kg*m^2
 g = 9.81 # m/s^2

@@ -74,6 +74,12 @@ for t in range(Nt):
     F = F + -(1 / tau) * (F - Feq)
 
     if t % plot_iteration == 0:
-        plt.imshow(np.sqrt(ux**2 + uy**2)) # visualize magnitude of velocity
+        # plot curl equation
+        dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
+        dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
+        curl = dfydx - dfxdy
+
+        # plt.imshow(np.sqrt(ux**2 + uy**2), cmap='rainbow') # visualize magnitude of velocity
+        plt.imshow(curl, cmap='bwr') # plot the curl
         plt.pause(0.00000001)
         plt.cla()

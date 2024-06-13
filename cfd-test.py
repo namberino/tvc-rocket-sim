@@ -11,7 +11,7 @@ Nx = 400
 Ny = 100
 
 tau = 0.53 # kinematic viscosity
-Nt = 3000 # iterations
+Nt = 1000 # iterations
 
 # lattice speeds and weights
 NL = 9 # number of lattices
@@ -39,6 +39,11 @@ for y in range(0, Ny):
 for t in range(Nt):
     if t + 1 % 100 == 0:
         print(f'Iteration {t + 1}')
+
+    # at the right wall
+    F[:, -1, [6, 7, 8]] = F[:, -2, [6, 7, 8]] # set to the value of the nodes next to it so they cancel each other out
+
+    F[:, 0, [2, 3, 4]] = F[:, 1, [2, 3, 4]] # same thing for the left wall
 
     # stream (move) the nodal velocity to nodes of the neighboring lattices
     for i, cx, cy in zip(range(NL), cxs, cys):
@@ -70,5 +75,5 @@ for t in range(Nt):
 
     if t % plot_iteration == 0:
         plt.imshow(np.sqrt(ux**2 + uy**2)) # visualize magnitude of velocity
-        plt.pause(0.000001)
+        plt.pause(0.00000001)
         plt.cla()

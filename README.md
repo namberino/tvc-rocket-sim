@@ -20,6 +20,8 @@ This is a fluid simulation made with the Lattice Boltzmann method. Still a work 
 
 Currently can simulate fluid flow on a cylinder.
 
+![cfd sim](img/cfd.gif)
+
 # Reference
 - [Modeling a Thrust Vectored Rocket In Simulink](https://www.youtube.com/watch?v=nwgd1CV__rs&t)
 - [Thrust vectoring](https://en.wikipedia.org/wiki/Thrust_vectoring)

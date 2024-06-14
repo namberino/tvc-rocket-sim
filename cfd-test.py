@@ -11,7 +11,7 @@ Nx = 400
 Ny = 100
 
 tau = 0.53 # kinematic viscosity
-Nt = 1000 # iterations
+Nt = 3000 # iterations
 
 # lattice speeds and weights
 NL = 9 # number of lattices

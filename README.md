@@ -14,6 +14,13 @@ I've explained in details how this simulation works in [this blog post](https://
 
 Check it out to learn more about the simulation.
 
+# Fluid simulation (WIP)
+
+This is a fluid simulation made with the Lattice Boltzmann method. Still a work in progress.
+
+Currently can simulate fluid flow on a cylinder.
+
 # Reference
 - [Modeling a Thrust Vectored Rocket In Simulink](https://www.youtube.com/watch?v=nwgd1CV__rs&t)
 - [Thrust vectoring](https://en.wikipedia.org/wiki/Thrust_vectoring)
+- [Create Your Own Lattice Boltzmann Simulation (With Python)](https://medium.com/swlh/create-your-own-lattice-boltzmann-simulation-with-python-8759e8b53b1c)

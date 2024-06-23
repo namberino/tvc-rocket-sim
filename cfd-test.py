@@ -28,11 +28,18 @@ F[:, :, 3] = 2.3 # at every lattice, in each of their 3rd node
 # an bool array that maps to every cells (false means empty space)
 cylinder = np.full((Ny, Nx), False)
 
+side_length = 12
+half_side = side_length // 2
+
 # set cylinder boundary (radius = 12)
 for y in range(0, Ny):
     for x in range(0, Nx):
         # 1/4 of the way into the X axis, 1/2 the way into the Y axis
-        if distance(Nx // 4, Ny // 2, x, y) < 12:
+        # if distance(Nx // 4, Ny // 2, x, y) < 12:
+        #     cylinder[y][x] = True
+        center_x = Nx // 4
+        center_y = Ny // 2
+        if (center_x - half_side <= x <= center_x + half_side) and (center_y - half_side <= y <= center_y + half_side):
             cylinder[y][x] = True
 
 # time stepping

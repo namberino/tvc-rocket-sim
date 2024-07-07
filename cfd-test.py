@@ -11,7 +11,7 @@ Nx = 400
 Ny = 100
 
 tau = 0.53 # kinematic viscosity
-Nt = 3000 # iterations
+Nt = 30000 # iterations
 
 # lattice speeds and weights
 NL = 9 # number of lattices
@@ -35,12 +35,12 @@ half_side = side_length // 2
 for y in range(0, Ny):
     for x in range(0, Nx):
         # 1/4 of the way into the X axis, 1/2 the way into the Y axis
-        # if distance(Nx // 4, Ny // 2, x, y) < 12:
-        #     cylinder[y][x] = True
-        center_x = Nx // 4
-        center_y = Ny // 2
-        if (center_x - half_side <= x <= center_x + half_side) and (center_y - half_side <= y <= center_y + half_side):
+        if distance(Nx // 4, Ny // 2, x, y) < 12:
             cylinder[y][x] = True
+        # center_x = Nx // 4
+        # center_y = Ny // 2
+        # if (center_x - half_side <= x <= center_x + half_side) and (center_y - half_side <= y <= center_y + half_side):
+        #     cylinder[y][x] = True
 
 # time stepping
 for t in range(Nt):
@@ -82,11 +82,11 @@ for t in range(Nt):
 
     if t % plot_iteration == 0:
         # plot curl equation
-        #dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
-        #dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
-        #curl = dfydx - dfxdy
+        dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
+        dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
+        curl = dfydx - dfxdy
 
-        plt.imshow(np.sqrt(ux**2 + uy**2), cmap='rainbow') # visualize magnitude of velocity
-        #plt.imshow(curl, cmap='bwr') # plot the curl
-        plt.pause(0.00000001)
+        # plt.imshow(np.sqrt(ux**2 + uy**2), cmap='rainbow') # visualize magnitude of velocity
+        plt.imshow(curl, cmap='bwr') # plot the curl
+        plt.pause(0.000000000000000000000000000000001)
         plt.cla()

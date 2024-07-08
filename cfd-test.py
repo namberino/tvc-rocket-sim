@@ -1,6 +1,59 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def make_rocket(Nx, Ny):
+    # Ensure the rocket shape fits within Nx and Ny
+    rocket_length = Nx // 2
+    rocket_height = Ny // 2
+
+    # Create a blank canvas
+    cylinder = np.full((Ny, Nx), False)
+
+    # Center y-coordinate
+    center_y = Ny // 2
+
+    # Define the radius (height/2) of the cone base
+    cone_radius = rocket_height // 2
+
+    # Define the end of the cone base
+    cone_base_end = cone_radius * 2
+
+    # Calculate the offset to center the rocket along the x-axis
+    x_offset = (Nx - rocket_length - 150) // 2
+
+    # Fill the cone shape pointing to the left
+    for y in range(center_y - cone_radius, center_y + cone_radius):
+        for x in range(cone_base_end):
+            if abs(center_y - y) <= x * (cone_radius / cone_base_end):
+                cylinder[y][x + x_offset] = True
+
+    # Fill the rectangular part and the flat right end
+    for y in range(center_y - cone_radius, center_y + cone_radius):
+        for x in range(cone_base_end, rocket_length):
+            cylinder[y][x + x_offset] = True
+
+    # Define the radius for the rounded corners
+    corner_radius = 10  # Smaller radius for a smaller rocket
+
+    # Smooth and round the bottom-right corner
+    for y in range(center_y, center_y + corner_radius):
+        for x in range(rocket_length - corner_radius, rocket_length):
+            if (x - (rocket_length - corner_radius))**2 + (y - (center_y + corner_radius))**2 > corner_radius**2:
+                cylinder[y][x + x_offset] = False
+
+    # Smooth and round the top-right corner
+    for y in range(center_y - corner_radius, center_y):
+        for x in range(rocket_length - corner_radius, rocket_length):
+            if (x - (rocket_length - corner_radius))**2 + (y - (center_y - corner_radius))**2 > corner_radius**2:
+                cylinder[y][x + x_offset] = False
+
+    # Extend the space between the two rounded corners further to the right
+    for y in range(center_y - corner_radius, center_y + corner_radius):
+        for x in range(rocket_length - corner_radius, rocket_length):
+            cylinder[y][x + x_offset] = True
+
+    return cylinder
+
 plot_iteration = 5 # plot every n iteration
 
 def distance(x1, y1, x2, y2):
@@ -42,6 +95,8 @@ for y in range(0, Ny):
         # if (center_x - half_side <= x <= center_x + half_side) and (center_y - half_side <= y <= center_y + half_side):
         #     cylinder[y][x] = True
 
+cylinder = make_rocket(Nx, Ny)
+
 # time stepping
 for t in range(Nt):
     if t + 1 % 100 == 0:
@@ -82,11 +137,11 @@ for t in range(Nt):
 
     if t % plot_iteration == 0:
         # plot curl equation
-        dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
-        dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
-        curl = dfydx - dfxdy
+        # dfydx = ux[2:, 1:-1] - ux[0:-2, 1:-1]
+        # dfxdy = uy[1:-1, 2:] - uy[1:-1, 0:-2]
+        # curl = dfydx - dfxdy
 
-        # plt.imshow(np.sqrt(ux**2 + uy**2), cmap='rainbow') # visualize magnitude of velocity
-        plt.imshow(curl, cmap='bwr') # plot the curl
+        plt.imshow(np.sqrt(ux**2 + uy**2), cmap='rainbow') # visualize magnitude of velocity
+        # plt.imshow(curl, cmap='bwr') # plot the curl
         plt.pause(0.000000000000000000000000000000001)
         plt.cla()
